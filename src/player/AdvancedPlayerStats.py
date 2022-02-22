@@ -1,3 +1,4 @@
+from random import randrange
 import pandas as pd
 import src.team.BasicTeamStats as BasicTeamStats
 import src.player.BasicPlayerStats as BasicPlayerStats
@@ -37,25 +38,32 @@ def getAdvancedPlayerStats(N=0):
 def getFantasyPoints():
     ls = []
     activePlayers = BasicPlayerStats.getActivePlayers()  
-    activePlayers[0:10]  
     print('start')
-    for player in activePlayers[0:10]:
+    for i in range(1, 15):
+        player = activePlayers[randrange(0, len(activePlayers))]
+        cur = playerfantasyprofile.PlayerFantasyProfile(season='2021-22', player_id = player['id']).get_data_frames()[0][['NBA_FANTASY_PTS']]
         try:
-            print(player)
-            cur = playerfantasyprofile.PlayerFantasyProfile(season='2021-22', player_id = player['id']).get_data_frames()[0][['NBA_FANTASY_PTS']]
             bio = [player['id'], player['full_name'], int(cur.iat[0,0])]
             ls.append(bio)
             print(bio)
         except:
             pass
+    '''
+    for player in activePlayers[0:10]:
+        cur = playerfantasyprofile.PlayerFantasyProfile(season='2021-22', player_id = player['id']).get_data_frames()[0][['NBA_FANTASY_PTS']]
+        print(player)
+        try:
+            bio = [player['id'], player['full_name'], int(cur.iat[0,0])]
+            ls.append(bio)
+            print(bio)
+        except:
+            pass
+    '''
     
     return pd.DataFrame(ls, columns=['PLAYER_ID', 'FULL_NAME', 'FANTASY_POINTS']).sort_values(by=['FANTASY_POINTS'], ascending=False)
-        #ls.append()
-     #   print(str(player['id']) + player['full_name'])
-    #df = pd.DataFrame(columns=['PLAYER_ID', 'PLAYER_NAME', 'FANTASY_POINTS'])
-    #cur = playerfantasyprofile.PlayerFantasyProfile(season='2021-22', player_id = playerIDs['id'][25]).get_data_frames()[0]
     
-
+def getPlayerEfficiencyRating():
+    pass
 
 # API used: https://github.com/swar/nba_api/blob/7f0c1dacf46c9fc2112b975be77e08666cb5934e/docs/nba_api/stats/endpoints/leaguedashplayerbiostats.md
 def getPlayerUsageRates():
