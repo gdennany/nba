@@ -13,6 +13,7 @@ def getActivePlayerIDs():
     activePlayers = getActivePlayers()
     return [item['id'] for item in activePlayers]
 
+
 def getPlayerByFullName(name):
     return players.find_players_by_full_name(name)
 
@@ -37,19 +38,6 @@ def getBasicPlayerStats(N=0):
     return leaguedashplayerstats.LeagueDashPlayerStats(
       last_n_games=N,
       measure_type_detailed_defense='Base',
-      month=0,
-      opponent_team_id=0,
-      pace_adjust='N',
-      per_mode_detailed='PerGame',
-      period=0,
-      plus_minus='N',
-      rank='N',
-      season_type_all_star='Regular Season').get_data_frames()[0]
-
-def testAdvanced(N=0):
-    return leaguedashplayerstats.LeagueDashPlayerStats(
-      last_n_games=N,
-      measure_type_detailed_defense='Advanced',
       month=0,
       opponent_team_id=0,
       pace_adjust='N',

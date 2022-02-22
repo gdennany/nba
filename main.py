@@ -24,7 +24,8 @@ def main():
     #AdvancedPlayerStats.getAdvancedStatAveragesByTeam("Pacers").to_csv('out.csv')
     #AdvancedPlayerStats.getInvolveMentRate()
     #Games.getAllGameIDs()
-    AdvancedPlayerStats.getPACE().to_csv('out.csv')
+    AdvancedPlayerStats.getFantasyPoints().to_csv('out.csv')
+    #Games.test().to_csv('out.csv')
 
 def toCSV(dataframe):
     dataframe.to_csv('out.csv')

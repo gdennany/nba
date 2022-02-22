@@ -1,7 +1,7 @@
 import time
 import pandas as pd
 import src.team.BasicTeamStats as BasicTeamStats
-from nba_api.stats.endpoints import leaguegamefinder, teamgamelog
+from nba_api.stats.endpoints import leaguegamefinder, teamgamelog, leaguegamelog, leaguedashptstats
 from nba_api.stats.static import teams
 
 def getAllGameIDs():
@@ -20,3 +20,14 @@ def getAllGameIDs():
 
     #remove duplicates from list
     return gameIDs
+
+def test():
+    '''
+    game_log = leaguegamelog.LeagueGameLog(player_or_team_abbreviation = 'P', season = '2021-22')
+    df = game_log.league_game_log.get_data_frame()[0]
+    return df
+    '''
+    player_distance = leaguedashptstats.LeagueDashPtStats(player_or_team = 'Player')
+    df = player_distance.league_dash_pt_stats.get_data_frame()
+    return df.loc[df['PLAYER_ID'] == 203932]
+    

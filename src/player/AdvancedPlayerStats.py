@@ -3,7 +3,7 @@ import src.team.BasicTeamStats as BasicTeamStats
 import src.player.BasicPlayerStats as BasicPlayerStats
 import src.game.Games as Games
 import mappings
-from nba_api.stats.endpoints import playerestimatedmetrics, boxscoreadvancedv2, leaguedashplayerbiostats, boxscoreplayertrackv2, leaguedashplayerstats
+from nba_api.stats.endpoints import playerestimatedmetrics, boxscoreadvancedv2, leaguedashplayerbiostats, boxscoreplayertrackv2, leaguedashplayerstats, playerfantasyprofile
 
 '''
 Advanced Player Stats
@@ -31,6 +31,32 @@ def getAdvancedPlayerStats(N=0):
       rank='N',
       season_type_all_star='Regular Season').get_data_frames()[0]
 
+# Official NBA fantasy points ranking: 1 point / 1 point scored, 1.2 points / 1 rebound, 1.5 points / 1 assist, 2 points / 1 blocked shot
+#                                      2 points / 1 steal, -1 point / 1 Turnover
+# This metric is especially useful because it awards players who play in a lot of games, and players who are injurerd often slowly fall behind
+def getFantasyPoints():
+    ls = []
+    activePlayers = BasicPlayerStats.getActivePlayers()  
+    activePlayers[0:10]  
+    print('start')
+    for player in activePlayers[0:10]:
+        try:
+            print(player)
+            cur = playerfantasyprofile.PlayerFantasyProfile(season='2021-22', player_id = player['id']).get_data_frames()[0][['NBA_FANTASY_PTS']]
+            bio = [player['id'], player['full_name'], int(cur.iat[0,0])]
+            ls.append(bio)
+            print(bio)
+        except:
+            pass
+    
+    return pd.DataFrame(ls, columns=['PLAYER_ID', 'FULL_NAME', 'FANTASY_POINTS']).sort_values(by=['FANTASY_POINTS'], ascending=False)
+        #ls.append()
+     #   print(str(player['id']) + player['full_name'])
+    #df = pd.DataFrame(columns=['PLAYER_ID', 'PLAYER_NAME', 'FANTASY_POINTS'])
+    #cur = playerfantasyprofile.PlayerFantasyProfile(season='2021-22', player_id = playerIDs['id'][25]).get_data_frames()[0]
+    
+
+
 # API used: https://github.com/swar/nba_api/blob/7f0c1dacf46c9fc2112b975be77e08666cb5934e/docs/nba_api/stats/endpoints/leaguedashplayerbiostats.md
 def getPlayerUsageRates():
     playerStats = leaguedashplayerbiostats.LeagueDashPlayerBioStats(season='2021-22').get_data_frames()[0]
@@ -38,6 +64,7 @@ def getPlayerUsageRates():
     statName = 'USG_PCT'
     return playerStats.sort_values(by=[statName], ascending=False)[['PLAYER_ID', 'PLAYER_NAME', 'GP', statName]]
 
+# Pace Factor, the number of possessions a team has per game (48 minutes), while a player is in the game
 def getPACE():
     playerStats = getAdvancedPlayerStats()
     playerStats = playerStats.loc[playerStats['GP'] > MIN_GAMES_PLAYED]
@@ -62,7 +89,8 @@ def getInvolveMentRate():
     MP = basicPlayerStats['MIN']
     GP = basicPlayerStats['GP']
     TMP = 48
-    #SAST => https://github.com/swar/nba_api/blob/7f0c1dacf46c9fc2112b975be77e08666cb5934e/docs/nba_api/stats/endpoints/boxscoreplayertrackv2.md
+    #SAST => https://github.com/swar/nba_api/blob/7f0c1dacf46c9fc2112b975be77e08666cb5934e/docs/nba_api/stats/endpoints/boxscoreplayertrackv2.md or
+    #        https://github.com/swar/nba_api/blob/7f0c1dacf46c9fc2112b975be77e08666cb5934e/docs/nba_api/stats/endpoints/leaguehustlestatsplayer.md
     #FTAST => cant get
     #OPAST => https://github.com/swar/nba_api/blob/7f0c1dacf46c9fc2112b975be77e08666cb5934e/docs/nba_api/stats/endpoints/leaguehustlestatsplayer.md
     #PACE => https://github.com/swar/nba_api/blob/7f0c1dacf46c9fc2112b975be77e08666cb5934e/docs/nba_api/stats/endpoints/boxscoreadvancedv2.md
@@ -85,8 +113,6 @@ def getInvolveMentRate():
     #return boxscoreplayertrackv2.BoxScorePlayerTrackV2(testGameId).get_data_frames()[0]
     
 
-    
-    
 
 
 # https://fivetimesfive-blog.com/2017/05/28/direct-offensive-contribution-doc/
