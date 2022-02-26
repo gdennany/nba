@@ -4,7 +4,7 @@ import src.team.BasicTeamStats as BasicTeamStats
 import src.player.BasicPlayerStats as BasicPlayerStats
 import src.game.Games as Games
 import mappings
-from nba_api.stats.endpoints import playerestimatedmetrics, boxscoreadvancedv2, leaguedashplayerbiostats, boxscoreplayertrackv2, leaguedashplayerstats, playerfantasyprofile
+from nba_api.stats.endpoints import playerestimatedmetrics, boxscoreadvancedv2, leaguedashplayerbiostats, boxscoreplayertrackv2, leaguedashplayerstats, playerfantasyprofile, fantasywidget
 
 '''
 Advanced Player Stats
@@ -36,36 +36,42 @@ def getAdvancedPlayerStats(N=0):
 #                                      2 points / 1 steal, -1 point / 1 Turnover
 # This metric is especially useful because it awards players who play in a lot of games, and players who are injurerd often slowly fall behind
 def getFantasyPoints():
-    ls = []
-    activePlayers = BasicPlayerStats.getActivePlayers()  
-    print('start')
-    for i in range(1, 15):
-        player = activePlayers[randrange(0, len(activePlayers))]
-        cur = playerfantasyprofile.PlayerFantasyProfile(season='2021-22', player_id = player['id']).get_data_frames()[0][['NBA_FANTASY_PTS']]
-        try:
-            bio = [player['id'], player['full_name'], int(cur.iat[0,0])]
-            ls.append(bio)
-            print(bio)
-        except:
-            pass
-    '''
-    for player in activePlayers[0:10]:
-        cur = playerfantasyprofile.PlayerFantasyProfile(season='2021-22', player_id = player['id']).get_data_frames()[0][['NBA_FANTASY_PTS']]
-        print(player)
-        try:
-            bio = [player['id'], player['full_name'], int(cur.iat[0,0])]
-            ls.append(bio)
-            print(bio)
-        except:
-            pass
-    '''
-    
-    return pd.DataFrame(ls, columns=['PLAYER_ID', 'FULL_NAME', 'FANTASY_POINTS']).sort_values(by=['FANTASY_POINTS'], ascending=False)
+    df = fantasywidget.FantasyWidget(todays_players = 'Y').get_data_frames()[0]
+    df = df[['PLAYER_ID', 'PLAYER_NAME', 'GP', 'NBA_FANTASY_PTS']]
+    df['SEASON_TOTAL'] = round(df.apply(lambda row: row.GP * row.NBA_FANTASY_PTS, axis=1), 2)
+    return df.sort_values(by=['SEASON_TOTAL'], ascending=False)
     
 def getPlayerEfficiencyRating():
-    pass
+    #Stats Needed: FGM, STL, FG3M (3 pointers made), FTM, BLK, OREB, AST, DREB, PF (Fouls), FT MISS (= FTA - FTM), FG MISS (= FGA - FGM), TOV, MIN
+    # BasicPlayerStats.getBasicPlayerStatTotals() 
+    df = BasicPlayerStats.getBasicPlayerStatTotals()
+    df = df[['PLAYER_ID', 'PLAYER_NAME', 'GP', 'FGA', 'FGM', 'STL', 'FG3M', 'FTA', 'FTM', 'BLK', 'OREB', 'AST', 'DREB', 'PF', 'TOV', 'MIN']]
+    df = df.loc[df['GP'] > MIN_GAMES_PLAYED]
+    df['FT_MISS'] = df.apply(lambda row: row.FTA - row.FTM, axis=1)
+    df['FG_MISS'] = df.apply(lambda row: row.FGA - row.FGM, axis=1)
+    df['PER'] = round(df.apply(lambda row: calculatePER(row), axis=1), 2)
+    return df.sort_values(by=['PER'], ascending=False)
 
-# API used: https://github.com/swar/nba_api/blob/7f0c1dacf46c9fc2112b975be77e08666cb5934e/docs/nba_api/stats/endpoints/leaguedashplayerbiostats.md
+# See here for more on calculating PER with these linear weights https://bleacherreport.com/articles/113144-cracking-the-code-how-to-calculate-hollingers-per-without-all-the-mess
+def calculatePER(row):
+    wFGM = row.FGM * 85.91
+    wSTL = row.STL * 53.897
+    wFG3M = row.FG3M * 51.757
+    wFTM = row.FTM * 46.845
+    wBLK = row.BLK * 39.190
+    wOREB = row.OREB * 39.190
+    wAST = row.AST * 34.677
+    wDREB = row.DREB * 14.707
+    wPF = row.PF * 17.174
+    wFTMISS = row.FT_MISS * 20.091
+    wFGMISS = row.FG_MISS * 39.190
+    wTOV = row.TOV * 53.897
+
+    positive = wFGM + wSTL + wFG3M + wFTM + wBLK + wOREB + wAST + wDREB
+    negative = wPF + wFTMISS + wFGMISS + wTOV
+
+    return (positive - negative) * (1 / row.MIN)
+# 
 def getPlayerUsageRates():
     playerStats = leaguedashplayerbiostats.LeagueDashPlayerBioStats(season='2021-22').get_data_frames()[0]
     playerStats = playerStats.loc[playerStats['GP'] > MIN_GAMES_PLAYED]
@@ -148,5 +154,20 @@ def getUsageRate():
 # https://www.pivotanalysis.com/post/net-rating#:~:text=Net%20rating%20is%20the%20offensive,a%20per%20X%20possessions%20basis.
 def getNetRating():
     pass
+
+def getFantasyPoints():
+    ls = []
+    activePlayers = BasicPlayerStats.getActivePlayers()  
+    print('start')
+    for i in range(1, 15):
+        player = activePlayers[randrange(0, len(activePlayers))]
+        cur = playerfantasyprofile.PlayerFantasyProfile(season='2021-22', player_id = player['id']).get_data_frames()[0][['NBA_FANTASY_PTS']]
+        try:
+            bio = [player['id'], player['full_name'], int(cur.iat[0,0])]
+            ls.append(bio)
+            print(bio)
+        except:
+            pass    
+    return pd.DataFrame(ls, columns=['PLAYER_ID', 'FULL_NAME', 'FANTASY_POINTS']).sort_values(by=['FANTASY_POINTS'], ascending=False)
 '''
 

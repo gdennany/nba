@@ -34,7 +34,7 @@ def getPlayerIdFromName(playerName):
 # N=0 => get season averages for the above stats
 # N=1 => get last game stats (technically is the average of the last game)
 # N=5 => get average stats over last 5 games
-def getBasicPlayerStats(N=0):
+def getBasicPlayerStatAverages(N=0):
     return leaguedashplayerstats.LeagueDashPlayerStats(
       last_n_games=N,
       measure_type_detailed_defense='Base',
@@ -47,6 +47,23 @@ def getBasicPlayerStats(N=0):
       rank='N',
       season_type_all_star='Regular Season').get_data_frames()[0]
 
+# Same return as above getBasicPlayerStatAverages function, but returns season totals instead
+def getBasicPlayerStatTotals():
+    return leaguedashplayerstats.LeagueDashPlayerStats(
+      last_n_games=0,
+      measure_type_detailed_defense='Base',
+      month=0,
+      opponent_team_id=0,
+      pace_adjust='N',
+      per_mode_detailed='Totals',
+      period=0,
+      plus_minus='N',
+      rank='N',
+      season_type_all_star='Regular Season').get_data_frames()[0]
+
+
+
+'''
 # Gets the BasicPlayerStats for player specified by the players name. N convention is same as above.
 def getPlayerStatsByName(playerName, N=0):
     playerID = getPlayerIdFromName(playerName)
@@ -61,3 +78,4 @@ def getPlayerStatsByID(playerID, N=0):
 # Gets stat leader based on stat abbreviation (possible parameters listed in the "Stats Returned section above"). N convention is same as above.
 def getStatLeader(statAbbreviation, N=0):
     return getBasicPlayerStats(N).sort_values(by=[statAbbreviation], ascending=False)[['PLAYER_ID', 'PLAYER_NAME', 'TEAM_ABBREVIATION', statAbbreviation]]
+'''
