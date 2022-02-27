@@ -5,6 +5,7 @@ import src.player.BasicPlayerStats as BasicPlayerStats
 import src.player.AdvancedPlayerStats as AdvancedPlayerStats
 import src.team.BasicTeamStats as BasicTeamStats
 import src.game.Games as Games
+import src.player.ESPNAdvanced as ESPN
 
 def main():
     #print(BasicPlayerStats.getActivePlayers())
@@ -24,9 +25,18 @@ def main():
     #AdvancedPlayerStats.getAdvancedStatAveragesByTeam("Pacers").to_csv('out.csv')
     #AdvancedPlayerStats.getInvolveMentRate()
     #Games.getAllGameIDs()
-    AdvancedPlayerStats.getPlayerEfficiencyRating().to_csv('out.csv')
+    #AdvancedPlayerStats.getPlayerUsagePCT().to_csv('out.csv')
+    #ESPN.get_rpm([2022]).to_csv('out.csv')
     #BasicPlayerStats.getBasicPlayerStatTotals().to_csv('out.csv')
     #Games.test().to_csv('out.csv')
+
+    getPlayerProfile()
+
+def getPlayerProfile():
+    AdvancedPlayerStats.getFantasyPoints().to_csv('fantasy_points.csv')
+    AdvancedPlayerStats.getPlayerEfficiencyRating().to_csv('per.csv')
+    AdvancedPlayerStats.getPlayerUsagePCT().to_csv('usg.csv')
+    ESPN.get_rpm([2022]).to_csv('rpm.csv')
 
 def toCSV(dataframe):
     dataframe.to_csv('out.csv')

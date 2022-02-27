@@ -1,10 +1,10 @@
-from random import randrange
+import matplotlib.pyplot as plot
 import pandas as pd
 import src.team.BasicTeamStats as BasicTeamStats
 import src.player.BasicPlayerStats as BasicPlayerStats
 import src.game.Games as Games
 import mappings
-from nba_api.stats.endpoints import playerestimatedmetrics, boxscoreadvancedv2, leaguedashplayerbiostats, boxscoreplayertrackv2, leaguedashplayerstats, playerfantasyprofile, fantasywidget
+from nba_api.stats.endpoints import leaguedashptstats, boxscoreadvancedv2, leaguedashplayerbiostats, boxscoreplayertrackv2, leaguedashplayerstats, playerfantasyprofile, fantasywidget
 
 '''
 Advanced Player Stats
@@ -41,6 +41,7 @@ def getFantasyPoints():
     df['SEASON_TOTAL'] = round(df.apply(lambda row: row.GP * row.NBA_FANTASY_PTS, axis=1), 2)
     return df.sort_values(by=['SEASON_TOTAL'], ascending=False)
     
+# John Hollinger's Player Efficiency Rating (PER) is a one-number measure of a player's per-minute productivity
 def getPlayerEfficiencyRating():
     #Stats Needed: FGM, STL, FG3M (3 pointers made), FTM, BLK, OREB, AST, DREB, PF (Fouls), FT MISS (= FTA - FTM), FG MISS (= FGA - FGM), TOV, MIN
     # BasicPlayerStats.getBasicPlayerStatTotals() 
@@ -50,7 +51,7 @@ def getPlayerEfficiencyRating():
     df['FT_MISS'] = df.apply(lambda row: row.FTA - row.FTM, axis=1)
     df['FG_MISS'] = df.apply(lambda row: row.FGA - row.FGM, axis=1)
     df['PER'] = round(df.apply(lambda row: calculatePER(row), axis=1), 2)
-    return df.sort_values(by=['PER'], ascending=False)
+    return df.sort_values(by=['PER'], ascending=False)[['PLAYER_ID', 'PLAYER_NAME', 'PER']]
 
 # See here for more on calculating PER with these linear weights https://bleacherreport.com/articles/113144-cracking-the-code-how-to-calculate-hollingers-per-without-all-the-mess
 def calculatePER(row):
@@ -71,11 +72,18 @@ def calculatePER(row):
     negative = wPF + wFTMISS + wFGMISS + wTOV
 
     return (positive - negative) * (1 / row.MIN)
-# 
-def getPlayerUsageRates():
+
+# Usage Percentage => what percentatge of a team plays a player was involved in while he was on the court.
+def getPlayerUsagePCT():
     playerStats = leaguedashplayerbiostats.LeagueDashPlayerBioStats(season='2021-22').get_data_frames()[0]
     playerStats = playerStats.loc[playerStats['GP'] > MIN_GAMES_PLAYED]
     statName = 'USG_PCT'
+    '''
+    playerStats.plot(kind='scatter',x='GP',y='USG_PCT')
+    for idx, row in playerStats.iterrows():
+        plot.annotate(row['PLAYER_NAME'], (row['GP'], row['USG_PCT']) )
+    plot.show()
+    '''
     return playerStats.sort_values(by=[statName], ascending=False)[['PLAYER_ID', 'PLAYER_NAME', 'GP', statName]]
 
 # Pace Factor, the number of possessions a team has per game (48 minutes), while a player is in the game
@@ -90,6 +98,16 @@ def getPlayerNetRatings():
     playerStats = playerStats.loc[playerStats['GP'] > MIN_GAMES_PLAYED]
     statName = 'NET_RATING'
     return playerStats.sort_values(by=[statName], ascending=False)[['PLAYER_ID', 'PLAYER_NAME', 'GP', statName]]
+
+
+def test():
+    df = leaguedashptstats.LeagueDashPtStats(
+        player_or_team = 'Player',
+        last_n_games=0,
+        month=0,
+        opponent_team_id=0,
+        season_type_all_star='Regular Season').get_data_frames()[0]
+    return df
 
 # https://fivetimesfive-blog.com/2017/05/22/new-statistics-involvement-rate/
 def getInvolveMentRate():
@@ -107,7 +125,7 @@ def getInvolveMentRate():
     #        https://github.com/swar/nba_api/blob/7f0c1dacf46c9fc2112b975be77e08666cb5934e/docs/nba_api/stats/endpoints/leaguehustlestatsplayer.md
     #FTAST => cant get
     #OPAST => https://github.com/swar/nba_api/blob/7f0c1dacf46c9fc2112b975be77e08666cb5934e/docs/nba_api/stats/endpoints/leaguehustlestatsplayer.md
-    #PACE => https://github.com/swar/nba_api/blob/7f0c1dacf46c9fc2112b975be77e08666cb5934e/docs/nba_api/stats/endpoints/boxscoreadvancedv2.md
+    #PACE => getPACE()
 
     #testGameId = '0022100194'
     SASTDict = {}
