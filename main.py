@@ -22,21 +22,35 @@ def main():
     #BasicTeamStats.getTeamStatLeaders()
     #print(BasicTeamStats.getTeamGamesThisSeason("Pacers"))
     #AdvancedPlayerStats.getAdvancedStatAveragesByTeam("Pacers").to_csv('out.csv')
-    #AdvancedPlayerStats.getAdvancedStatAveragesByTeam("Pacers").to_csv('out.csv')
+    #AdvancedPlayerStats.getHustleStats().to_csv('out.csv')
     #AdvancedPlayerStats.getInvolveMentRate()
     #Games.getAllGameIDs()
-    #AdvancedPlayerStats.getPlayerUsagePCT().to_csv('out.csv')
+    #BasicTeamStats.getLeagueStandiangs().to_csv('out.csv')
     #ESPN.get_rpm([2022]).to_csv('out.csv')
     #BasicPlayerStats.getBasicPlayerStatTotals().to_csv('out.csv')
     #Games.test().to_csv('out.csv')
 
     getPlayerProfile()
+    getTeamProfile()
+
 
 def getPlayerProfile():
-    AdvancedPlayerStats.getFantasyPoints().to_csv('fantasy_points.csv')
-    AdvancedPlayerStats.getPlayerEfficiencyRating().to_csv('per.csv')
-    AdvancedPlayerStats.getPlayerUsagePCT().to_csv('usg.csv')
-    ESPN.get_rpm([2022]).to_csv('rpm.csv')
+    AdvancedPlayerStats.getFantasyPoints().to_csv('player_fantasyPoints.csv')
+    AdvancedPlayerStats.getPlayerEfficiencyRating().to_csv('player_per.csv')
+    AdvancedPlayerStats.getPlayerUsagePCT().to_csv('player_usg.csv')
+    ESPN.get_rpm([2022]).to_csv('player_rpm.csv')
+    AdvancedPlayerStats.getAdvancedPlayerStats().to_csv('player_statsAdvanced')
+    AdvancedPlayerStats.getPlayerCareerTotals_BySeason().to_csv('player_careerTotalsBySeason.csv')
+    AdvancedPlayerStats.getPlayerCareerTotals_Sum().to_csv('player_careerTotalsSum.csv')
+    AdvancedPlayerStats.getPlayerCareerAverages_BySeason().to_csv('player_averagesBySeason.csv')
+    AdvancedPlayerStats.getPlayerCareerAverages().to_csv('player_careerAverages.csv')
+    AdvancedPlayerStats.getHustleStats().to_csv('player_hustleStats.csv')
+
+def getTeamProfile():
+    BasicTeamStats.getLeagueStandiangs().to_csv('team_standings.csv')
+    BasicTeamStats.getTeamAverageStatsByPlayer('Grizzlies').to_csv('team_playerStats.csv')
+    BasicTeamStats.getFranchiseHistory().to_csv('team_history.csv')
+    BasicTeamStats.getTeamAverageAdvancedStatsByPlayer("Lakers").to_csv('team_advancedPlayerStats.csv')
 
 def toCSV(dataframe):
     dataframe.to_csv('out.csv')

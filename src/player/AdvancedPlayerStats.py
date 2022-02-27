@@ -4,20 +4,16 @@ import src.team.BasicTeamStats as BasicTeamStats
 import src.player.BasicPlayerStats as BasicPlayerStats
 import src.game.Games as Games
 import mappings
-from nba_api.stats.endpoints import leaguedashptstats, boxscoreadvancedv2, leaguedashplayerbiostats, boxscoreplayertrackv2, leaguedashplayerstats, playerfantasyprofile, fantasywidget
+from nba_api.stats.endpoints import leaguedashptstats, playerawards, leaguedashplayerbiostats, boxscoreplayertrackv2, leaguedashplayerstats, playercareerstats, fantasywidget, leaguehustlestatsplayer
 
 '''
 Advanced Player Stats
 '''
+# Hustle Stats: https://github.com/swar/nba_api/blob/master/docs/nba_api/stats/endpoints/leaguehustlestatsplayer.md
 
 # many players who've played in a couple games this season are anomalies and need to be filtered
 MIN_GAMES_PLAYED = 20
 STEPH_CURRY_PLAYERID = 201939
-
-def getAdvancedStatAveragesByTeam(teamNickName):
-    #teamGamesThisSeason = BasicTeamStats.getGameIDsFromCurrentSeason(teamNickName)
-    #return boxscoreadvancedv2.BoxScoreAdvancedV2(game_id = '0022100618').get_data_frames()[0]
-    playerIDList = BasicPlayerStats.getActivePlayerIDs()
 
 def getAdvancedPlayerStats(N=0):
     return leaguedashplayerstats.LeagueDashPlayerStats(
@@ -99,8 +95,8 @@ def getPlayerNetRatings():
     statName = 'NET_RATING'
     return playerStats.sort_values(by=[statName], ascending=False)[['PLAYER_ID', 'PLAYER_NAME', 'GP', statName]]
 
-
-def test():
+# getPlayerCareer... methods below all use: https://github.com/swar/nba_api/blob/master/docs/nba_api/stats/endpoints/playercareerstats.md
+def getPlayerCareerAverages():
     df = leaguedashptstats.LeagueDashPtStats(
         player_or_team = 'Player',
         last_n_games=0,
@@ -108,6 +104,35 @@ def test():
         opponent_team_id=0,
         season_type_all_star='Regular Season').get_data_frames()[0]
     return df
+
+def getPlayerCareerTotals_BySeason(playerID=STEPH_CURRY_PLAYERID):
+    activePlayerIDs = BasicPlayerStats.getActivePlayerIDs()
+    return playercareerstats.PlayerCareerStats(per_mode36='Totals', player_id=STEPH_CURRY_PLAYERID).get_data_frames()[0]
+    #for id in activePlayerIDs:
+
+def getPlayerCareerTotals_Sum(playerID=STEPH_CURRY_PLAYERID):
+    activePlayerIDs = BasicPlayerStats.getActivePlayerIDs()
+    df = playercareerstats.PlayerCareerStats(per_mode36='Totals', player_id=STEPH_CURRY_PLAYERID).get_data_frames()[0]
+    return df.groupby("PLAYER_ID").sum()
+
+def getPlayerCareerAverages_BySeason(playerID=STEPH_CURRY_PLAYERID):
+    activePlayerIDs = BasicPlayerStats.getActivePlayerIDs()
+    return playercareerstats.PlayerCareerStats(per_mode36='PerGame', player_id=STEPH_CURRY_PLAYERID).get_data_frames()[0]
+    #for id in activePlayerIDs:
+
+def getPlayerCareerAverages(playerID=STEPH_CURRY_PLAYERID):
+    df = playercareerstats.PlayerCareerStats(per_mode36='PerGame', player_id=STEPH_CURRY_PLAYERID).get_data_frames()[0]
+    seasonsPlayed = df.shape[0]
+    df = df.groupby("PLAYER_ID").sum()
+    df = round(df.apply(lambda row: row / seasonsPlayed, axis=1), 2)
+    return df
+
+# https://github.com/swar/nba_api/blob/master/docs/nba_api/stats/endpoints/leaguehustlestatsplayer.md
+def getHustleStats():
+    df = leaguehustlestatsplayer.LeagueHustleStatsPlayer(per_mode_time='Totals', season_type_all_star='Regular Season').get_data_frames()[0]
+    return df[['PLAYER_ID', 'PLAYER_NAME', 'G', 'CONTESTED_SHOTS', 'DEFLECTIONS', 'CHARGES_DRAWN', 'SCREEN_AST_PTS', 'LOOSE_BALLS_RECOVERED', 'BOX_OUTS']]
+
+'''
 
 # https://fivetimesfive-blog.com/2017/05/22/new-statistics-involvement-rate/
 def getInvolveMentRate():
@@ -144,14 +169,14 @@ def getInvolveMentRate():
 
     #return boxscoreplayertrackv2.BoxScorePlayerTrackV2(testGameId).get_data_frames()[0]
     
-
+def test():
+    return playerawards.PlayerAwards(player_id=STEPH_CURRY_PLAYERID).get_data_frames()[0]
 
 
 # https://fivetimesfive-blog.com/2017/05/28/direct-offensive-contribution-doc/
 def getDirectOffensiveContribution():
     pass
 
-'''
 The following methods rely on the "playerestimatedmetrics" (https://github.com/swar/nba_api/blob/7f0c1dacf46c9fc2112b975be77e08666cb5934e/docs/nba_api/stats/endpoints/playerestimatedmetrics.md).
  Not sure exactly what this data is so I decided against using it
 
