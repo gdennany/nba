@@ -6,6 +6,8 @@ from nba_api.stats.static import players
 Basic Player stats.
 """
 
+MIN_GAMES_PLAYED = 20
+
 def getActivePlayers():
     return players.get_active_players()
 
@@ -35,7 +37,7 @@ def getPlayerIdFromName(playerName):
 # N=1 => get last game stats (technically is the average of the last game)
 # N=5 => get average stats over last 5 games
 def getBasicPlayerStatAverages(N=0):
-    return leaguedashplayerstats.LeagueDashPlayerStats(
+    df = leaguedashplayerstats.LeagueDashPlayerStats(
       last_n_games=N,
       measure_type_detailed_defense='Base',
       month=0,
@@ -46,10 +48,12 @@ def getBasicPlayerStatAverages(N=0):
       plus_minus='N',
       rank='N',
       season_type_all_star='Regular Season').get_data_frames()[0]
+    
+    return df.loc[df['GP'] > MIN_GAMES_PLAYED]
 
 # Same return as above getBasicPlayerStatAverages function, but returns season totals instead
 def getBasicPlayerStatTotals():
-    return leaguedashplayerstats.LeagueDashPlayerStats(
+    df = leaguedashplayerstats.LeagueDashPlayerStats(
       last_n_games=0,
       measure_type_detailed_defense='Base',
       month=0,
@@ -60,6 +64,8 @@ def getBasicPlayerStatTotals():
       plus_minus='N',
       rank='N',
       season_type_all_star='Regular Season').get_data_frames()[0]
+
+    return df.loc[df['GP'] > MIN_GAMES_PLAYED]
 
 
 

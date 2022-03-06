@@ -4,7 +4,7 @@ import src.team.BasicTeamStats as BasicTeamStats
 import src.player.BasicPlayerStats as BasicPlayerStats
 import src.game.Games as Games
 import mappings
-from nba_api.stats.endpoints import leaguedashptstats, playerawards, leaguedashplayerbiostats, boxscoreplayertrackv2, leaguedashplayerstats, playercareerstats, fantasywidget, leaguehustlestatsplayer
+from nba_api.stats.endpoints import leaguedashptstats, playerawards, leaguedashplayerbiostats, boxscoreplayertrackv2, leaguedashplayerstats, playercareerstats, teamplayerdashboard, leaguehustlestatsplayer
 
 '''
 Advanced Player Stats
@@ -16,7 +16,7 @@ MIN_GAMES_PLAYED = 20
 STEPH_CURRY_PLAYERID = 201939
 
 def getAdvancedPlayerStats(N=0):
-    return leaguedashplayerstats.LeagueDashPlayerStats(
+    df = leaguedashplayerstats.LeagueDashPlayerStats(
       last_n_games=N,
       measure_type_detailed_defense='Advanced',
       month=0,
@@ -27,20 +27,20 @@ def getAdvancedPlayerStats(N=0):
       plus_minus='N',
       rank='N',
       season_type_all_star='Regular Season').get_data_frames()[0]
+    
+    return df.loc[df['GP'] > MIN_GAMES_PLAYED]
 
 # Official NBA fantasy points ranking: 1 point / 1 point scored, 1.2 points / 1 rebound, 1.5 points / 1 assist, 2 points / 1 blocked shot
 #                                      2 points / 1 steal, -1 point / 1 Turnover
 # This metric is especially useful because it awards players who play in a lot of games, and players who are injurerd often slowly fall behind
 def getFantasyPoints():
-    df = fantasywidget.FantasyWidget(todays_players = 'Y').get_data_frames()[0]
+    df = BasicPlayerStats.getBasicPlayerStatTotals()
     df = df[['PLAYER_ID', 'PLAYER_NAME', 'GP', 'NBA_FANTASY_PTS']]
-    df['SEASON_TOTAL'] = round(df.apply(lambda row: row.GP * row.NBA_FANTASY_PTS, axis=1), 2)
-    return df.sort_values(by=['SEASON_TOTAL'], ascending=False)
+    return df.sort_values(by=['NBA_FANTASY_PTS'], ascending=False)
     
 # John Hollinger's Player Efficiency Rating (PER) is a one-number measure of a player's per-minute productivity
+# unfortunately is just an estimation of actual http://insider.espn.com/nba/hollinger/statistics
 def getPlayerEfficiencyRating():
-    #Stats Needed: FGM, STL, FG3M (3 pointers made), FTM, BLK, OREB, AST, DREB, PF (Fouls), FT MISS (= FTA - FTM), FG MISS (= FGA - FGM), TOV, MIN
-    # BasicPlayerStats.getBasicPlayerStatTotals() 
     df = BasicPlayerStats.getBasicPlayerStatTotals()
     df = df[['PLAYER_ID', 'PLAYER_NAME', 'GP', 'FGA', 'FGM', 'STL', 'FG3M', 'FTA', 'FTM', 'BLK', 'OREB', 'AST', 'DREB', 'PF', 'TOV', 'MIN']]
     df = df.loc[df['GP'] > MIN_GAMES_PLAYED]

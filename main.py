@@ -7,6 +7,7 @@ import src.team.BasicTeamStats as BasicTeamStats
 import src.game.Games as Games
 import src.player.ESPNAdvanced as ESPN
 
+# number of players with > 20 games played: 416
 def main():
     #print(BasicPlayerStats.getActivePlayers())
     #print(BasicPlayerStats.getPlayerByFullName("Ja Morant"))
@@ -30,8 +31,10 @@ def main():
     #BasicPlayerStats.getBasicPlayerStatTotals().to_csv('out.csv')
     #Games.test().to_csv('out.csv')
 
-    getPlayerProfile()
-    getTeamProfile()
+    #AdvancedPlayerStats.getHustleStats().to_csv('out.csv')
+    ESPN.get_rpm([2022]).sort_values(by=['DRPM'], ascending=False).to_csv('out.csv')
+    #getPlayerProfile()
+    #getTeamProfile()
 
 
 def getPlayerProfile():

@@ -3,6 +3,8 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import os
 
+MIN_GAMES_PLAYED = 20
+# TODO: filter out by min_games_played
 # Real Plus Minus: https://www.nbastuffer.com/analytics101/real-plus-minus-rpm/
 def get_rpm(years):
     totalDF = pd.DataFrame()
