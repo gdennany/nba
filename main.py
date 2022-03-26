@@ -7,6 +7,7 @@ import src.team.BasicTeamStats as BasicTeamStats
 import src.game.Games as Games
 import src.player.ESPNAdvanced as ESPN
 import src.player.ESPNHollinger as Hollinger
+import src.player.RankPlayers as RankPlayers
 
 # number of players with > 20 games played: 416
 def main():
@@ -34,14 +35,15 @@ def main():
 
     #AdvancedPlayerStats.getHustleStats().to_csv('out.csv')
     #ESPN.get_rpm([2022]).sort_values(by=['DRPM'], ascending=False).to_csv('out.csv')
-    getPlayerProfile()
+    #getPlayerProfile()
     #getTeamProfile()
+    RankPlayers.combineDataFrames().to_csv('out.csv')
 
 
 def getPlayerProfile():
     #AdvancedPlayerStats.getFantasyPoints().to_csv('player_fantasyPoints.csv')
-    Hollinger.getPER().to_csv('player_per.csv')
     #AdvancedPlayerStats.getPlayerUsagePCT().to_csv('player_usg.csv')
+    #Hollinger.getPER().to_csv('player_per.csv')
     #ESPN.get_rpm([2022]).to_csv('player_rpm.csv')
     #AdvancedPlayerStats.getAdvancedPlayerStats().to_csv('player_statsAdvanced.csv')
     #AdvancedPlayerStats.getPlayerCareerTotals_BySeason().to_csv('player_careerTotalsBySeason.csv')
