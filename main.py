@@ -6,6 +6,7 @@ import src.player.AdvancedPlayerStats as AdvancedPlayerStats
 import src.team.BasicTeamStats as BasicTeamStats
 import src.game.Games as Games
 import src.player.ESPNAdvanced as ESPN
+import src.player.ESPNHollinger as Hollinger
 
 # number of players with > 20 games played: 416
 def main():
@@ -32,22 +33,24 @@ def main():
     #Games.test().to_csv('out.csv')
 
     #AdvancedPlayerStats.getHustleStats().to_csv('out.csv')
-    ESPN.get_rpm([2022]).sort_values(by=['DRPM'], ascending=False).to_csv('out.csv')
-    #getPlayerProfile()
+    #ESPN.get_rpm([2022]).sort_values(by=['DRPM'], ascending=False).to_csv('out.csv')
+    getPlayerProfile()
     #getTeamProfile()
 
 
 def getPlayerProfile():
-    AdvancedPlayerStats.getFantasyPoints().to_csv('player_fantasyPoints.csv')
-    AdvancedPlayerStats.getPlayerEfficiencyRating().to_csv('player_per.csv')
-    AdvancedPlayerStats.getPlayerUsagePCT().to_csv('player_usg.csv')
-    ESPN.get_rpm([2022]).to_csv('player_rpm.csv')
-    AdvancedPlayerStats.getAdvancedPlayerStats().to_csv('player_statsAdvanced')
-    AdvancedPlayerStats.getPlayerCareerTotals_BySeason().to_csv('player_careerTotalsBySeason.csv')
-    AdvancedPlayerStats.getPlayerCareerTotals_Sum().to_csv('player_careerTotalsSum.csv')
-    AdvancedPlayerStats.getPlayerCareerAverages_BySeason().to_csv('player_averagesBySeason.csv')
-    AdvancedPlayerStats.getPlayerCareerAverages().to_csv('player_careerAverages.csv')
-    AdvancedPlayerStats.getHustleStats().to_csv('player_hustleStats.csv')
+    #AdvancedPlayerStats.getFantasyPoints().to_csv('player_fantasyPoints.csv')
+    Hollinger.getPER().to_csv('player_per.csv')
+    #AdvancedPlayerStats.getPlayerUsagePCT().to_csv('player_usg.csv')
+    #ESPN.get_rpm([2022]).to_csv('player_rpm.csv')
+    #AdvancedPlayerStats.getAdvancedPlayerStats().to_csv('player_statsAdvanced.csv')
+    #AdvancedPlayerStats.getPlayerCareerTotals_BySeason().to_csv('player_careerTotalsBySeason.csv')
+    #AdvancedPlayerStats.getPlayerCareerTotals_Sum().to_csv('player_careerTotalsSum.csv')
+    #AdvancedPlayerStats.getPlayerCareerAverages_BySeason().to_csv('player_averagesBySeason.csv')
+    #AdvancedPlayerStats.getPlayerCareerAverages().to_csv('player_careerAverages.csv')
+    #AdvancedPlayerStats.getPlayerNetRatings().to_csv('out.csv')
+    #AdvancedPlayerStats.getHustleStats().to_csv('player_hustleStats.csv')
+    pass
 
 def getTeamProfile():
     BasicTeamStats.getLeagueStandiangs().to_csv('team_standings.csv')

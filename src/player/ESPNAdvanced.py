@@ -4,8 +4,8 @@ import pandas as pd
 import os
 
 MIN_GAMES_PLAYED = 20
-# TODO: filter out by min_games_played
 # Real Plus Minus: https://www.nbastuffer.com/analytics101/real-plus-minus-rpm/
+# http://www.espn.com/nba/statistics/rpm
 def get_rpm(years):
     totalDF = pd.DataFrame()
     for i in years:
@@ -37,6 +37,4 @@ def get_rpm(years):
                 df.set_index("RK")
                 totalDF = pd.concat([totalDF, df])
 
-        return totalDF
-        
-        
+        return totalDF.loc[totalDF['GP'] > MIN_GAMES_PLAYED]

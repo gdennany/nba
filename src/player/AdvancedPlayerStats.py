@@ -30,44 +30,16 @@ def getAdvancedPlayerStats(N=0):
     
     return df.loc[df['GP'] > MIN_GAMES_PLAYED]
 
-# Official NBA fantasy points ranking: 1 point / 1 point scored, 1.2 points / 1 rebound, 1.5 points / 1 assist, 2 points / 1 blocked shot
-#                                      2 points / 1 steal, -1 point / 1 Turnover
-# This metric is especially useful because it awards players who play in a lot of games, and players who are injurerd often slowly fall behind
+# Official NBA fantasy points ranking: 1 point scored => 1 point, 1 rebound => 1.2 points, 1 assist => 1.5 points, 1 blocked shot => 2 points 
+#                                      1 steal => 2 points, 1 Turnover => -1 point
+# This metric is especially useful because it awards players who play in a lot of games, and players who sit out often often don't have the chance
+# to accumulate as many points. As well as players who are injured will slowly fall behind here
 def getFantasyPoints():
     df = BasicPlayerStats.getBasicPlayerStatTotals()
     df = df[['PLAYER_ID', 'PLAYER_NAME', 'GP', 'NBA_FANTASY_PTS']]
-    return df.sort_values(by=['NBA_FANTASY_PTS'], ascending=False)
-    
-# John Hollinger's Player Efficiency Rating (PER) is a one-number measure of a player's per-minute productivity
-# unfortunately is just an estimation of actual http://insider.espn.com/nba/hollinger/statistics
-def getPlayerEfficiencyRating():
-    df = BasicPlayerStats.getBasicPlayerStatTotals()
-    df = df[['PLAYER_ID', 'PLAYER_NAME', 'GP', 'FGA', 'FGM', 'STL', 'FG3M', 'FTA', 'FTM', 'BLK', 'OREB', 'AST', 'DREB', 'PF', 'TOV', 'MIN']]
     df = df.loc[df['GP'] > MIN_GAMES_PLAYED]
-    df['FT_MISS'] = df.apply(lambda row: row.FTA - row.FTM, axis=1)
-    df['FG_MISS'] = df.apply(lambda row: row.FGA - row.FGM, axis=1)
-    df['PER'] = round(df.apply(lambda row: calculatePER(row), axis=1), 2)
-    return df.sort_values(by=['PER'], ascending=False)[['PLAYER_ID', 'PLAYER_NAME', 'PER']]
-
-# See here for more on calculating PER with these linear weights https://bleacherreport.com/articles/113144-cracking-the-code-how-to-calculate-hollingers-per-without-all-the-mess
-def calculatePER(row):
-    wFGM = row.FGM * 85.91
-    wSTL = row.STL * 53.897
-    wFG3M = row.FG3M * 51.757
-    wFTM = row.FTM * 46.845
-    wBLK = row.BLK * 39.190
-    wOREB = row.OREB * 39.190
-    wAST = row.AST * 34.677
-    wDREB = row.DREB * 14.707
-    wPF = row.PF * 17.174
-    wFTMISS = row.FT_MISS * 20.091
-    wFGMISS = row.FG_MISS * 39.190
-    wTOV = row.TOV * 53.897
-
-    positive = wFGM + wSTL + wFG3M + wFTM + wBLK + wOREB + wAST + wDREB
-    negative = wPF + wFTMISS + wFGMISS + wTOV
-
-    return (positive - negative) * (1 / row.MIN)
+    df['AVG'] = df.apply(lambda row: row.NBA_FANTASY_PTS / row.GP, axis=1)
+    return df.sort_values(by=['NBA_FANTASY_PTS'], ascending=False)
 
 # Usage Percentage => what percentatge of a team plays a player was involved in while he was on the court.
 def getPlayerUsagePCT():
@@ -92,8 +64,9 @@ def getPACE():
 def getPlayerNetRatings():
     playerStats = leaguedashplayerbiostats.LeagueDashPlayerBioStats(season='2021-22').get_data_frames()[0]
     playerStats = playerStats.loc[playerStats['GP'] > MIN_GAMES_PLAYED]
-    statName = 'NET_RATING'
-    return playerStats.sort_values(by=[statName], ascending=False)[['PLAYER_ID', 'PLAYER_NAME', 'GP', statName]]
+    #statName = 'NET_RATING'
+    return playerStats
+    #return playerStats.sort_values(by=[statName], ascending=False)[['PLAYER_ID', 'PLAYER_NAME', 'GP', statName]]
 
 # getPlayerCareer... methods below all use: https://github.com/swar/nba_api/blob/master/docs/nba_api/stats/endpoints/playercareerstats.md
 def getPlayerCareerAverages():
@@ -130,9 +103,41 @@ def getPlayerCareerAverages(playerID=STEPH_CURRY_PLAYERID):
 # https://github.com/swar/nba_api/blob/master/docs/nba_api/stats/endpoints/leaguehustlestatsplayer.md
 def getHustleStats():
     df = leaguehustlestatsplayer.LeagueHustleStatsPlayer(per_mode_time='Totals', season_type_all_star='Regular Season').get_data_frames()[0]
+    df = df.loc[df['G'] > MIN_GAMES_PLAYED]
     return df[['PLAYER_ID', 'PLAYER_NAME', 'G', 'CONTESTED_SHOTS', 'DEFLECTIONS', 'CHARGES_DRAWN', 'SCREEN_AST_PTS', 'LOOSE_BALLS_RECOVERED', 'BOX_OUTS']]
 
+
 '''
+# John Hollinger's Player Efficiency Rating (PER) is a one-number measure of a player's per-minute productivity
+# unfortunately is just an estimation of actual http://insider.espn.com/nba/hollinger/statistics
+def getPlayerEfficiencyRating():
+    df = BasicPlayerStats.getBasicPlayerStatTotals()
+    df = df[['PLAYER_ID', 'PLAYER_NAME', 'GP', 'FGA', 'FGM', 'STL', 'FG3M', 'FTA', 'FTM', 'BLK', 'OREB', 'AST', 'DREB', 'PF', 'TOV', 'MIN']]
+    df = df.loc[df['GP'] > MIN_GAMES_PLAYED]
+    df['FT_MISS'] = df.apply(lambda row: row.FTA - row.FTM, axis=1)
+    df['FG_MISS'] = df.apply(lambda row: row.FGA - row.FGM, axis=1)
+    df['PER'] = round(df.apply(lambda row: calculatePER(row), axis=1), 2)
+    return df.sort_values(by=['PER'], ascending=False)[['PLAYER_ID', 'PLAYER_NAME', 'PER']]
+
+# See here for more on calculating PER with these linear weights https://bleacherreport.com/articles/113144-cracking-the-code-how-to-calculate-hollingers-per-without-all-the-mess
+def calculatePER(row):
+    wFGM = row.FGM * 85.91
+    wSTL = row.STL * 53.897
+    wFG3M = row.FG3M * 51.757
+    wFTM = row.FTM * 46.845
+    wBLK = row.BLK * 39.190
+    wOREB = row.OREB * 39.190
+    wAST = row.AST * 34.677
+    wDREB = row.DREB * 14.707
+    wPF = row.PF * 17.174
+    wFTMISS = row.FT_MISS * 20.091
+    wFGMISS = row.FG_MISS * 39.190
+    wTOV = row.TOV * 53.897
+
+    positive = wFGM + wSTL + wFG3M + wFTM + wBLK + wOREB + wAST + wDREB
+    negative = wPF + wFTMISS + wFGMISS + wTOV
+
+    return (positive - negative) * (1 / row.MIN)
 
 # https://fivetimesfive-blog.com/2017/05/22/new-statistics-involvement-rate/
 def getInvolveMentRate():
