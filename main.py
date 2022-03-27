@@ -29,7 +29,7 @@ def main():
     #AdvancedPlayerStats.getInvolveMentRate()
     #Games.getAllGameIDs()
     #BasicTeamStats.getLeagueStandiangs().to_csv('out.csv')
-    #ESPN.get_rpm([2022]).to_csv('out.csv')
+    #ESPN.get_rpm(2022).to_csv('out.csv')
     #BasicPlayerStats.getBasicPlayerStatTotals().to_csv('out.csv')
     #Games.test().to_csv('out.csv')
 

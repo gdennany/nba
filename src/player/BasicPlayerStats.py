@@ -19,8 +19,8 @@ def getActivePlayerIDs():
 def getPlayerByFullName(name):
     return players.find_players_by_full_name(name)
 
-def getPlayerInfo(playerName):
-    playerInfo = commonplayerinfo.CommonPlayerInfo(player_id=2544, timeout=100).get_data_frames()[0]
+def getPlayersInfo():
+    playerInfo = commonplayerinfo.CommonPlayerInfo().get_data_frames()[1]
     return playerInfo
 
 def getPlayerIdFromName(playerName):

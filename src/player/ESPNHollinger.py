@@ -18,7 +18,7 @@ def getPER():
             if not df.empty:
                 fullDF = pd.concat([fullDF, df])
             else:
-                raise pd.errors.EmptyDataError('I know Python!')
+                raise pd.errors.EmptyDataError('No more pages to read')
             pageNum += 1
     except:
         pass 
