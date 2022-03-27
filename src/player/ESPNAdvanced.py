@@ -45,16 +45,7 @@ def get_rpm(year):
     totalDF['NAME'] = totalDF['NAME'].str.split(',').str[0]
     
     totalDF = totalDF[['NAME', 'ORPM', 'DRPM', 'RPM', 'WINS']]
-
-    # Get Player ID's
-    #
-    '''
-    for index, row in totalDF.iterrows():
-        try:
-            print(row['NAME'] + ' ---- ' + str(BasicPlayerStats.getPlayerIdFromName(row['NAME'])))
-        except:
-            print('error' + str(row))
-    '''
+    
     return totalDF
         
         
