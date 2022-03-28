@@ -30,14 +30,15 @@ def main():
     #Games.getAllGameIDs()
     #BasicTeamStats.getLeagueStandiangs().to_csv('out.csv')
     #ESPN.get_rpm(2022).to_csv('out.csv')
-    #BasicPlayerStats.getBasicPlayerStatTotals().to_csv('out.csv')
     #Games.test().to_csv('out.csv')
-
+    #AdvancedPlayerStats.getPlayerCareerTotals_Sum().to_csv('out.csv')
+    #AdvancedPlayerStats.getPlayerCareerTotals_BySeason().to_csv('out.csv')
     #AdvancedPlayerStats.getHustleStats().to_csv('out.csv')
     #ESPN.get_rpm([2022]).sort_values(by=['DRPM'], ascending=False).to_csv('out.csv')
     #getPlayerProfile()
     #getTeamProfile()
     RankPlayers.combineDataFrames().to_csv('out.csv')
+    pass
 
 
 def getPlayerProfile():

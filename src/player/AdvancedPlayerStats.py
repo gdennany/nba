@@ -68,29 +68,38 @@ def getPlayerNetRatings():
     #return playerStats.sort_values(by=[statName], ascending=False)[['PLAYER_ID', 'PLAYER_NAME', 'GP', statName]]
 
 # getPlayerCareer... methods below all use: https://github.com/swar/nba_api/blob/master/docs/nba_api/stats/endpoints/playercareerstats.md
-def getPlayerCareerAverages():
-    df = leaguedashptstats.LeagueDashPtStats(
-        player_or_team = 'Player',
-        last_n_games=0,
-        month=0,
-        opponent_team_id=0,
-        season_type_all_star='Regular Season').get_data_frames()[0]
-    return df
-
 def getPlayerCareerTotals_BySeason(playerID=STEPH_CURRY_PLAYERID):
+    '''
     activePlayerIDs = BasicPlayerStats.getActivePlayerIDs()
-    return playercareerstats.PlayerCareerStats(per_mode36='Totals', player_id=STEPH_CURRY_PLAYERID).get_data_frames()[0]
-    #for id in activePlayerIDs:
+    return playercareerstats.PlayerCareerStats(per_mode36='Totals', player_id=playerID).career_totals_regular_season.get_data_frame()
+    '''
+    #activePlayerIDs = BasicPlayerStats.getActivePlayerIDs()
+    playerIDs = getFantasyPoints()[['PLAYER_ID']]
+    playerIDs = playerIDs['PLAYER_ID'].tolist()
+    
+    df = playercareerstats.PlayerCareerStats(per_mode36='Totals', player_id=playerIDs[0]).career_totals_regular_season.get_data_frame()
+    #
+    for i in range(1, len(playerIDs)):
+        print(i)
+        df = pd.concat([df, playercareerstats.PlayerCareerStats(per_mode36='Totals', player_id=playerIDs[i]).career_totals_regular_season.get_data_frame()])
+    return df    
 
-def getPlayerCareerTotals_Sum(playerID=STEPH_CURRY_PLAYERID):
+def getPlayerCareerTotals_Sum():
+    '''
     activePlayerIDs = BasicPlayerStats.getActivePlayerIDs()
-    df = playercareerstats.PlayerCareerStats(per_mode36='Totals', player_id=STEPH_CURRY_PLAYERID).get_data_frames()[0]
+    df = playercareerstats.PlayerCareerStats(per_mode36='Totals', player_id=playerID).get_data_frames()[0]
     return df.groupby("PLAYER_ID").sum()
+    '''
+    for id in BasicPlayerStats.getActivePlayerIDs():
+        df = playercareerstats.PlayerCareerStats(per_mode36='Totals', player_id=id).get_data_frames()[0]
+        print(id)
+        df.groupby("PLAYER_ID").sum()
 
 def getPlayerCareerAverages_BySeason(playerID=STEPH_CURRY_PLAYERID):
     activePlayerIDs = BasicPlayerStats.getActivePlayerIDs()
-    return playercareerstats.PlayerCareerStats(per_mode36='PerGame', player_id=STEPH_CURRY_PLAYERID).get_data_frames()[0]
+    return playercareerstats.PlayerCareerStats(per_mode36='PerGame', player_id=playerID).get_data_frames()[0]
     #for id in activePlayerIDs:
+
 
 def getPlayerCareerAverages(playerID=STEPH_CURRY_PLAYERID):
     df = playercareerstats.PlayerCareerStats(per_mode36='PerGame', player_id=STEPH_CURRY_PLAYERID).get_data_frames()[0]

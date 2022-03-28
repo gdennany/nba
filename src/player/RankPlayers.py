@@ -45,11 +45,20 @@ def combineDataFrames():
     per = per.drop_duplicates(subset=['PLAYER_ID'])
     df = df.reset_index(drop=True)
     per = per.reset_index(drop=True)
-    df['PER'] = per['PLAYER_ID']
+    df['PER'] = per['PER']
     
     # Check to ensure all PLAYER_ID's are matched up in the combined DF properly
     #df['ID_MATCH'] = df.apply(lambda row: str(row.PLAYER_ID).strip() == str(row.PER).strip(), axis=1)
 
-    # TODO: add career stats/achievements & factor in teams performance
+    # Get career total stats
+    careerStats = AdvancedPlayerStats.getPlayerCareerTotals_Sum().sort_values(by=['PLAYER_ID'], ascending=False)
+    df['CAREER_PTS'] = careerStats['PTS']
+    df['CAREER_AST'] = careerStats['AST']
+    df['CAREER_REB'] = careerStats['REB']
+    df['CAREER_STL'] = careerStats['STL']
+    df['CAREER_BLK'] = careerStats['BLK']
+    df['CAREER_TOV'] = careerStats['TOV']
+    
+    # TODO: add achievements (MVP, playoff appearances, etc) & factor in teams performance
     
     return df
