@@ -73,27 +73,34 @@ def getPlayerCareerTotals_BySeason(playerID=STEPH_CURRY_PLAYERID):
     activePlayerIDs = BasicPlayerStats.getActivePlayerIDs()
     return playercareerstats.PlayerCareerStats(per_mode36='Totals', player_id=playerID).career_totals_regular_season.get_data_frame()
     '''
-    #activePlayerIDs = BasicPlayerStats.getActivePlayerIDs()
     playerIDs = getFantasyPoints()[['PLAYER_ID']]
     playerIDs = playerIDs['PLAYER_ID'].tolist()
     
     df = playercareerstats.PlayerCareerStats(per_mode36='Totals', player_id=playerIDs[0]).career_totals_regular_season.get_data_frame()
-    #
     for i in range(1, len(playerIDs)):
         print(i)
         df = pd.concat([df, playercareerstats.PlayerCareerStats(per_mode36='Totals', player_id=playerIDs[i]).career_totals_regular_season.get_data_frame()])
     return df    
 
+# Official NBA fantasy points ranking: 1 point scored => 1 point, 1 rebound => 1.2 points, 1 assist => 1.5 points, 1 blocked shot => 2 points 
+#                                      1 steal => 2 points, 1 Turnover => -1 point
 def getPlayerCareerTotals_Sum():
     '''
-    activePlayerIDs = BasicPlayerStats.getActivePlayerIDs()
-    df = playercareerstats.PlayerCareerStats(per_mode36='Totals', player_id=playerID).get_data_frames()[0]
-    return df.groupby("PLAYER_ID").sum()
+    playerIDs = getFantasyPoints()[['PLAYER_ID']]
+    playerIDs = playerIDs['PLAYER_ID'].tolist()
+    
+    df = playercareerstats.PlayerCareerStats(per_mode36='Totals', player_id=playerIDs[0]).career_totals_regular_season.get_data_frame()
+    for i in range(1, len(playerIDs)):
+        print(playerIDs[i])
+        df = pd.concat([df, playercareerstats.PlayerCareerStats(per_mode36='Totals', player_id=playerIDs[i]).career_totals_regular_season.get_data_frame()])
     '''
-    for id in BasicPlayerStats.getActivePlayerIDs():
-        df = playercareerstats.PlayerCareerStats(per_mode36='Totals', player_id=id).get_data_frames()[0]
-        print(id)
-        df.groupby("PLAYER_ID").sum()
+    df = pd.read_csv('player_careerTotals.csv')
+    df = df.drop(df.columns[[0]], axis=1)
+    df = df[['PLAYER_ID', 'PTS', 'REB', 'AST', 'BLK', 'STL', 'TOV']]
+    df['CAREER_TOTAL_FANTASY_PTS'] = round(df.apply(lambda row: row.PTS + (row.REB * 1.2) + (row.AST * 1.5) + (row.BLK * 2) + (row.STL * 2) - row.TOV, axis=1), 2)
+
+    return df
+    
 
 def getPlayerCareerAverages_BySeason(playerID=STEPH_CURRY_PLAYERID):
     activePlayerIDs = BasicPlayerStats.getActivePlayerIDs()
